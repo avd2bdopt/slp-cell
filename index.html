@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLP Cell — Case Submission</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1C2B4A; --ink-soft:#334268; --paper:#F3F1EA; --paper-raised:#FFFFFF;
+    --rust:#8C3B2E; --rust-soft:#F7E7E2; --sage:#3F7A57; --sage-soft:#E3EFE6;
+    --border:#E1DDD0; --border-strong:#CFC7B4; --slate:#333A4A; --slate-light:#767E92;
+    --serif:'Source Serif 4', Georgia, serif; --sans:'Inter', -apple-system, sans-serif;
+    --radius:12px; --shadow:0 4px 20px rgba(20,30,55,.08);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--sans);background:var(--paper);color:var(--slate);min-height:100vh;}
+  body{background:radial-gradient(circle at 85% -6%, #E9EFF7 0, transparent 32rem),var(--paper);}
+  .wrap{max-width:640px;margin:0 auto;padding:36px 20px 80px;}
+  .masthead{text-align:center;margin-bottom:26px;}
+  .masthead-eyebrow{font-family:'IBM Plex Mono','Courier New',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate-light);}
+  .masthead-title{font-family:var(--serif);font-size:26px;font-weight:700;color:var(--ink);margin:6px 0 4px;}
+  .masthead-sub{font-size:13px;color:var(--slate-light);max-width:440px;margin:0 auto;line-height:1.5;}
+  .card{background:var(--paper-raised);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px 26px 22px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  .field .hint{font-size:11px;color:var(--slate-light);margin-top:5px;line-height:1.4;}
+  .field input, .field select, .field textarea{
+    width:100%;padding:10px 12px;border:1px solid var(--border-strong);border-radius:8px;
+    font-family:var(--sans);font-size:13.5px;background:#fff;color:var(--slate);
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--ink-soft);box-shadow:0 0 0 3px rgba(46,66,104,.1);}
+  .field textarea{resize:vertical;min-height:70px;}
+  .field-row{display:flex;gap:12px;}
+  .field-row .field{flex:1;}
+  .required-mark{color:var(--rust);}
+  .btn{
+    width:100%;padding:13px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#F5F2EA;
+    font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;
+  }
+  .btn:hover{background:var(--ink-soft);}
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
+  .status-msg{
+    display:none;border-radius:8px;padding:12px 14px;font-size:13px;margin-bottom:18px;line-height:1.5;
+  }
+  .status-msg.show{display:block;}
+  .status-msg.success{background:var(--sage-soft);color:var(--sage);border:1px solid #CFE4D2;}
+  .status-msg.error{background:var(--rust-soft);color:var(--rust);border:1px solid #EBCFC5;}
+  .footnote{text-align:center;font-size:11.5px;color:var(--slate-light);margin-top:18px;line-height:1.6;}
+  .section-divider{border:none;border-top:1px solid var(--border);margin:20px 0 18px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="masthead-eyebrow">Department of Personnel &amp; Training &middot; AVD-II (B)</div>
+    <div class="masthead-title">SLP Cell — Case Submission</div>
+    <div class="masthead-sub">Submit SLP / Appeal / Withdrawal case details here for direct entry into AVD-II (B)'s case register. Once submitted, AVD-II (B) will take it forward from their end.</div>
+  </div>
+
+  <div class="card">
+    <div class="status-msg" id="statusMsg"></div>
+    <form id="intakeForm">
+      <div class="field">
+        <label>Case type <span class="required-mark">*</span></label>
+        <select name="category" id="categorySelect" required>
+          <option value="SLP">Special Leave Petition (SLP)</option>
+          <option value="Appeals">Appeal (Lower Court / CBI Court)</option>
+          <option value="Withdrawal">Withdrawal from Prosecution</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Date sent to DoPT <span class="required-mark">*</span></label>
+        <input type="date" name="dateSentToDoPT" required>
+        <div class="hint">The date this case is being forwarded to AVD-II (B) — this is what starts DoPT's tracking clock for the case.</div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="field-row">
+        <div class="field">
+          <label>E-mail date</label>
+          <input type="date" name="emailDate">
+        </div>
+        <div class="field">
+          <label>E-mail time</label>
+          <input type="time" name="emailTime">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>File no.</label>
+          <input type="text" name="fileNo" placeholder="e.g. 137/105/2026-AVD-II(B)">
+        </div>
+        <div class="field">
+          <label>Computer no.</label>
+          <input type="text" name="computerNo">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>RC No. / Case No.</label>
+        <input type="text" name="rcNo" placeholder="e.g. RC 17(S)/2019-BLR">
+      </div>
+
+      <div class="field">
+        <label>Subject <span class="required-mark">*</span></label>
+        <textarea name="subject" required placeholder="Full subject / particulars of the case"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Remarks</label>
+        <textarea name="remarks" placeholder="Optional — any note for AVD-II (B)"></textarea>
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">Submit case to AVD-II (B)</button>
+    </form>
+  </div>
+
+  <div class="footnote">Fields marked <span class="required-mark">*</span> are required. After submission, AVD-II (B) will handle status updates, timelines and further processing from their dashboard — this form only adds new cases.</div>
+</div>
+
+<script>
+/* =====================================================================
+   Same Apps Script backend as the main AVD-II (B) dashboard — this form
+   only ever calls the "add" action, and only into the SLP/Appeals/
+   Withdrawal sheets. It has no read access and cannot edit or delete
+   anything.
+   ===================================================================== */
+const API_URL = "https://script.google.com/macros/s/AKfycbzLVIrTIpN7YT2Dsk18HPUwk1Huwl3tu91o5Q2RD4rs5KukLer7SkRJvOdDnRKud2Xn/exec";
+
+const form = document.getElementById("intakeForm");
+const statusMsg = document.getElementById("statusMsg");
+const submitBtn = document.getElementById("submitBtn");
+
+function showStatus(kind, text) {
+  statusMsg.className = "status-msg show " + kind;
+  statusMsg.textContent = text;
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(form);
+  const category = fd.get("category");
+
+  const data = {
+    "Date of Receipt": fd.get("dateSentToDoPT"),
+    "Email Date": fd.get("emailDate") || "",
+    "Email Time": fd.get("emailTime") || "",
+    "File No": fd.get("fileNo") || "",
+    "Computer No": fd.get("computerNo") || "",
+    "RC No./Case No.": fd.get("rcNo") || "",
+    "Subject": fd.get("subject"),
+    "Status": "Received and under process",
+    "Remarks": fd.get("remarks") || ""
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting…";
+  statusMsg.classList.remove("show");
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "add", sheet: category, data })
+    });
+    const json = await res.json();
+    if (json && json.ok) {
+      showStatus("success", "Case submitted successfully to AVD-II (B) (" + categoryLabel(category) + "). You can submit another case below.");
+      form.reset();
+      document.getElementById("categorySelect").value = category;
+    } else {
+      showStatus("error", "Could not submit — " + (json && json.error ? json.error : "unknown error") + ". Please try again or contact AVD-II (B).");
+    }
+  } catch (err) {
+    showStatus("error", "Could not reach the server. Check your internet connection and try again.");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit case to AVD-II (B)";
+  }
+});
+
+function categoryLabel(cat) {
+  return { SLP: "SLP", Appeals: "Appeal", Withdrawal: "Withdrawal from Prosecution" }[cat] || cat;
+}
+</script>
+</body>
+</html>
