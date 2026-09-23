@@ -79,6 +79,8 @@
     .list-row.head{display:none;}
   }
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -177,12 +179,23 @@
 
 <script>
 /* =====================================================================
-   Same Apps Script backend as the main AVD-II (B) dashboard — this form
-   only ever calls the "add" action, and only into the SLP/Appeals/
-   Withdrawal sheets. It has no read access and cannot edit or delete
-   anything.
+   Same Firebase project as the main AVD-II (B) dashboard — this form
+   only ever adds new documents, and only into the SLP/Appeals/
+   Withdrawal collections. It has no delete capability, and the list
+   below is read-only.
+
+   Paste the SAME Firebase config used in the main dashboard's CONFIG.
    ===================================================================== */
-const API_URL = "https://script.google.com/macros/s/AKfycbzLVIrTIpN7YT2Dsk18HPUwk1Huwl3tu91o5Q2RD4rs5KukLer7SkRJvOdDnRKud2Xn/exec";
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCr7_k4mNmNih1mLKpzjtByUlidGOHFBKs",
+  authDomain: "avd2b-case-register.firebaseapp.com",
+  projectId: "avd2b-case-register",
+  storageBucket: "avd2b-case-register.firebasestorage.app",
+  messagingSenderId: "1010708265710",
+  appId: "1:1010708265710:web:aa920ec35bc98a009ad1ff"
+};
+firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.firestore();
 
 const form = document.getElementById("intakeForm");
 const statusMsg = document.getElementById("statusMsg");
@@ -215,22 +228,13 @@ form.addEventListener("submit", async (e) => {
   statusMsg.classList.remove("show");
 
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "add", sheet: category, data })
-    });
-    const json = await res.json();
-    if (json && json.ok) {
-      showStatus("success", "Case submitted successfully to AVD-II (B) (" + categoryLabel(category) + "). You can submit another case below.");
-      form.reset();
-      document.getElementById("categorySelect").value = category;
-      fetchCasesList();
-    } else {
-      showStatus("error", "Could not submit — " + (json && json.error ? json.error : "unknown error") + ". Please try again or contact AVD-II (B).");
-    }
+    await db.collection(category).add(data);
+    showStatus("success", "Case submitted successfully to AVD-II (B) (" + categoryLabel(category) + "). You can submit another case below.");
+    form.reset();
+    document.getElementById("categorySelect").value = category;
+    fetchCasesList();
   } catch (err) {
-    showStatus("error", "Could not reach the server. Check your internet connection and try again.");
+    showStatus("error", "Could not submit — " + (err && err.message ? err.message : "unknown error") + ". Please try again or contact AVD-II (B).");
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "Submit case to AVD-II (B)";
@@ -268,12 +272,10 @@ async function fetchCasesList() {
   const listCard = document.getElementById("listCard");
   const listSub = document.getElementById("listSub");
   try {
-    const res = await fetch(API_URL + "?action=list");
-    const json = await res.json();
-    if (!json || !json.ok) throw new Error((json && json.error) || "Failed to load");
+    const snapshots = await Promise.all(LIST_CATS.map(cat => db.collection(cat).get()));
     ALL_CASES = [];
-    LIST_CATS.forEach(cat => {
-      (json.data[cat] || []).forEach(record => ALL_CASES.push({ cat, record }));
+    LIST_CATS.forEach((cat, i) => {
+      snapshots[i].docs.forEach(doc => ALL_CASES.push({ cat, record: { ...doc.data(), ID: doc.id } }));
     });
     renderList();
   } catch (err) {
